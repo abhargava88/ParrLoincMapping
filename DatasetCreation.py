@@ -26,15 +26,15 @@ from rpy2.robjects.packages import importr
 def build_cube():
     if config.print_status == 'Y':
         print('Building analytic data cube')
-    agg_source_data = pd.read_csv(config.in_file, sep=config.delim, quoting=csv.QUOTE_NONE, \
-              encoding = "ISO-8859-1", keep_default_na=False, na_values=config.missing, dtype = config.datatypes) ##ABMod - added config.datatypes 
+    agg_source_data = pd.read_csv(config.in_file, sep=config.delim, quoting=csv.QUOTE_NONE, 
+              encoding = "ISO-8859-1", keep_default_na=False, na_values=config.missing)
     
     if os.path.exists(config.out_dir + "Cleaned_Lab_Names.csv") and os.path.exists(config.out_dir + "Cleaned_Specimen_Names.csv"):
-        cleaned_tests = pd.read_csv(config.out_dir + "Cleaned_Lab_Names.csv", sep="|", quoting=csv.QUOTE_NONE, \
-                                encoding = "ISO-8859-1", keep_default_na=False, \
+        cleaned_tests = pd.read_csv(config.out_dir + "Cleaned_Lab_Names.csv", sep="|", quoting=csv.QUOTE_NONE,
+                                encoding = "ISO-8859-1", keep_default_na=False,
                                 na_values=config.missing)
-        cleaned_specimen = pd.read_csv(config.out_dir + "Cleaned_Specimen_Names.csv", sep="|", quoting=csv.QUOTE_NONE, \
-                                   encoding = "ISO-8859-1", keep_default_na=False, \
+        cleaned_specimen = pd.read_csv(config.out_dir + "Cleaned_Specimen_Names.csv", sep="|", quoting=csv.QUOTE_NONE,
+                                   encoding = "ISO-8859-1", keep_default_na=False,
                                   na_values=config.missing)
     else:
         cleaned_tests, cleaned_specimen = import_source_data()
@@ -57,7 +57,7 @@ def build_cube():
     ## Get total # of lab results per site, create normalized 'FreqPercent' variable
     joined_dat = joined_dat.merge(pd.Series.to_frame(joined_dat.groupby(config.site)[config.count].sum(), name='TotalCount').reset_index(),
                                  how='inner', left_on=config.site, right_on=config.site)
-    joined_dat['FreqPercent'] = float(joined_dat[config.count]/joined_dat.TotalCount * 100.0) ##ABMod - forcing typecast to float 
+    joined_dat['FreqPercent'] = joined_dat[config.count]/joined_dat.TotalCount * 100.0
     
     return joined_dat
 
