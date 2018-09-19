@@ -6,15 +6,15 @@
 
 ## Enter the directory where you would like the intermediate output files to be stored:
 ## Example: 'C:/Users/me/Documents/MyFiles/'
-out_dir = r"M:/LoincMappingV6/fullDatasetOutput//"
+out_dir = r"ENTER_YOUR_OUTPUT_DIRECTORY_HERE//"
 
 ## Enter the filepath where your raw source data file is located along with :
 ## Example: ## Example: 'C:/Users/me/Documents/MyFiles/Data.txt'
-in_file = r"M:/LoincMappingV6/data/AggLabsCopyNoCommas.csv"
+in_file = r"ENTER_YOUR_SOURCE_DATA_FILE_LOCATION_HERE//"
 
 ## If your data file is delimited by character(s) other than a comma, please indicate the delimeter:
 ## Example: delimiter = '|'
-delim = '|' ##ABMod - Parr's source data file is pipe delimited, while the LOINC Core CSV is comma delimited. Possible complication?
+delim = '|' ##AB - Change the delimiter accordingly  
 
 ## Throughout this data transformation pipeline, intermediate files can be written to disk both for examination and for loading in subsequent model steps to avoid having to recreate them. The following files created while cleaning source data text can be written to file:
 ## 1. Cleaned_Lab_Names.csv
@@ -39,11 +39,11 @@ write_file_umls_cuis = True
 
 ## Enter the full filepath to your local loinc.csv file installation:
 ## Example: 'C:/Users/me/Documents/MyFiles/loinc.csv'
-loinc_file_path = r"M:/LoincMappingV6/data/Loinc.csv"
+loinc_file_path = r"ENTER_YOUR_LOINC_FILE_PATH_HERE"
 
 ## Enter the full filepath to your local R library file location (where stringdist package is installed)
 ## Example: 'C:/Program Files/R/R-3.4.1/library'
-lib_loc = r"C:/Program Files/R/R-3.3.0/library//"
+lib_loc = r"ENTER_YOUR_R_LIBRARY_FILEPATH_HERE"
 
 ## The program assumes that your raw source data file has a header with the following MANDATORY fields:
 ##  1. Test Name
@@ -61,6 +61,7 @@ lib_loc = r"C:/Program Files/R/R-3.3.0/library//"
 ## 13. Count (of total number of tests with the same [Test Name, Specimen Type, Units, and LOINC code])
 ## 14. Site identifier
 
+##ABMod - This is currently configured for the TruncData.csv file 
 
 ## Enter the name of the column in your data source that contains the TEST NAME (i.e. Creatinine):
 test_col = 'LabChemTestName'
@@ -118,7 +119,7 @@ print_status = 'Y'
 ## This program uses the UMLS API to generate features by obtaining CUIs for test names and specimen types. To access the UMLS, the user is required to enter an API key.
 ## To obtain this information, the user may create or login to their UMLS account at https://uts.nlm.nih.gov/home.html. After logging in to UMLS, click on 'My Profile'.
 ## The API key is listed beneath the user. Paste the API KEY into the field below:
-api_key = "107b0292-a592-4623-860a-f1bafceda56a"
+api_key = "107b0292-a592-4623-860a-f1bafceda56a" ##AB's UMLS API Key 
 
 ## Enter the integer number of CUIs to retain for each UMLS search. Default setting will return up to 3 CUIs for each test name and each specimen type
 num_cuis = 3
