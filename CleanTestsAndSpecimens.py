@@ -7,7 +7,6 @@ import re
 import config
 import pandas as pd
 from collections import defaultdict, Counter
-import time 
 
 
 # In[2]:
@@ -18,7 +17,6 @@ REJECTION_THRESHOLD = config.rejection_threshold
 # In[3]:
 
 def import_source_data():
-    print(str(time.ctime()) + "/t Executed import_source_data of CTAS.py") ##ABMod 
     if config.print_status == 'Y':
         print('Importing source data')
     testNameList = defaultdict(list)
@@ -34,14 +32,14 @@ def import_source_data():
             specimenCol = fields.index(config.spec_col)
         index = index + 1
         if index == 0: continue
-        if (fields[siteIdentifierCol].upper().strip() not in testNameList.keys() or
-            (fields[siteIdentifierCol].upper().strip() in testNameList.keys() and
+        if (fields[siteIdentifierCol] not in testNameList.keys() or
+            (fields[siteIdentifierCol] in testNameList.keys() and
             fields[testCol].upper().strip() not in testNameList[fields[siteIdentifierCol]])):
-            testNameList[fields[siteIdentifierCol].upper().strip()].append(fields[testCol].upper().strip())
-        if (fields[siteIdentifierCol].upper().strip() not in specimenList.keys() or 
-            (fields[siteIdentifierCol].upper().strip() in specimenList.keys() and
+            testNameList[fields[siteIdentifierCol]].append(fields[testCol].upper().strip())
+        if (fields[siteIdentifierCol] not in specimenList.keys() or 
+            (fields[siteIdentifierCol] in specimenList.keys() and
              fields[specimenCol].upper().strip() not in specimenList[fields[siteIdentifierCol]])):
-            specimenList[fields[siteIdentifierCol].upper().strip()].append(fields[specimenCol].upper().strip())
+            specimenList[fields[siteIdentifierCol]].append(fields[specimenCol].upper().strip())
     
     cleanedTests = clean_terms(testNameList, 'testNames')
     cleanedSpecimens = clean_terms(specimenList, 'specimenNames')
@@ -51,7 +49,6 @@ def import_source_data():
 # In[4]:
 
 def clean_terms(sourceData, dataType):
-    print(str(time.ctime()) + "/t Executed clean_terms of CTAS.py") ##ABMod 
     if config.print_status == 'Y':
         print('Cleaning source data')
     insigWords = ["IN", "FROM", "ON", "OR", "OF", "BY", "AND", "&", "TO", "BY", "", " "]
@@ -61,7 +58,11 @@ def clean_terms(sourceData, dataType):
     discardedTerms = defaultdict(list)
     for siteKey in sourceData.keys():
         for term in sourceData[siteKey]:
-            modTerm = (term.replace("'", "").replace(",", " ").replace(".", " ")                 .replace(":", " ").replace('\t', " ").replace("^", " ").replace("+", " ")                 .replace("*", " ").replace("~", " ").replace("(", " ").replace(")", " ")                 .replace("!",  " ").replace("[", " ").replace("]", " ")                 .replace("_", " ").replace("|", " ").replace('"', " ").split(" "))
+            modTerm = (term.replace("'", "").replace(",", " ").replace(".", " ") \
+                .replace(":", " ").replace('\t', " ").replace("^", " ").replace("+", " ")\
+                .replace("*", " ").replace("~", " ").replace("(", " ").replace(")", " ")\
+                .replace("!",  " ").replace("[", " ").replace("]", " ")\
+                .replace("_", " ").replace("|", " ").replace('"', " ").split(" "))
 
             i = 0
             while i < len(modTerm):
@@ -95,14 +96,14 @@ def clean_terms(sourceData, dataType):
         if REJECTION_THRESHOLD is not None:
             filter_out_frequent_tokens(cleanedList, siteWordCount, siteTotalWordCount, discardedTerms)
         cleanedList = convert_to_df(cleanedList, dataType)
-        if config.write_file_source_data_cleaning == 'Y':
+        if config.write_file_source_data_cleaning:
             cleanedList.to_csv(config.out_dir + "\\Cleaned_Lab_Names.csv", sep='|', index=False)
             write_word_ct_csv(config.out_dir + "\\By_Site_Lab_Word_Count.csv", siteWordCount)
             if len(discardedTerms) > 0:
                 write_discarded_terms(config.out_dir + "\\Discarded_Lab_Names.csv", discardedTerms)
     if dataType == 'specimenNames':
         cleanedList = convert_to_df(cleanedList, dataType)
-        if config.write_file_source_data_cleaning == 'Y':
+        if config.write_file_source_data_cleaning:
             cleanedList.to_csv(config.out_dir + "\\Cleaned_Specimen_Names.csv", sep='|', index=False)
             write_word_ct_csv(config.out_dir + "\\By_Site_Specimen_Word_Count.csv", siteWordCount)
     return cleanedList
@@ -111,7 +112,6 @@ def clean_terms(sourceData, dataType):
 # In[5]:
 
 def convert_to_df(cleanedList, dataType):
-    print(str(time.ctime()) + "/t Executed convert_to_df of CTAS.py") ##ABMod 
     if dataType == "testNames":
         cols = ['Site', 'OriginalTestName', 'CleanedTestName']
     else:
@@ -125,7 +125,6 @@ def convert_to_df(cleanedList, dataType):
 # In[6]:
 
 def filter_out_frequent_tokens(cleanedTestNameList, siteWordCount, siteTotalWordCount, discardedTerms):
-    print(str(time.ctime()) + "/t Executed filter function of CTAS.py") ##ABMod 
     for site in siteWordCount.keys():
         for token in siteWordCount[site].keys():
             siteWordCtPct = 100.0 * siteWordCount[site][token] / siteTotalWordCount[site]
@@ -140,14 +139,12 @@ def filter_out_frequent_tokens(cleanedTestNameList, siteWordCount, siteTotalWord
 # In[7]:
 
 def write_cleaned_terms(pathName, data):
-    print(str(time.ctime()) + "/t Executed write_cleaned_terms of CTAS.py") ##ABMod 
     data.to_csv(pathName, sep='|')
 
 
 # In[8]:
 
 def write_word_ct_csv(pathName, data):
-    print(str(time.ctime()) + "/t Executed write_word_ct_csv of CTAS.py") ##ABMod 
     with open(pathName, 'w') as out_file:
         out_file.write("Site|Term|Count|Percent\n")
         for site in data.keys():
@@ -161,7 +158,6 @@ def write_word_ct_csv(pathName, data):
 # In[9]:
 
 def  write_discarded_terms(pathName, discardedTerms):
-    print(str(time.ctime()) + "/t Executed write_discarded_terms of CTAS.py") ##ABMod 
     with open(pathName, 'w') as out_file:
         out_file.write("Site|DiscardedName\n")
         for site in discardedTerms.keys():

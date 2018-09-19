@@ -1,9 +1,8 @@
 
 # coding: utf-8
 
-# In[ ]:
+# In[2]:
 
-get_ipython().magic('matplotlib inline')
 import pandas as pd
 import numpy as np
 from scipy import stats
@@ -15,7 +14,6 @@ from sklearn.model_selection import cross_val_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.metrics import accuracy_score, f1_score, log_loss, classification
-import matplotlib.pyplot as plt
 import time
 import os
 from collections import defaultdict
@@ -25,30 +23,29 @@ from LOINCSynonyms import *
 from DatasetCreation import *
 
 
-# In[ ]:
+# In[3]:
 
 import warnings
 warnings.filterwarnings(action='ignore', category= classification.UndefinedMetricWarning)
 
 
-# In[ ]:
+# In[4]:
 
 seed = 12341
 N_SPLITS = config.n_splits
 TUNING_EVALS = config.tuning_evals
 
 
-# In[ ]:
+# In[5]:
 
 filepath = config.out_dir
 
 
 # ### Load LOINC Synonymn dictionary
 
-# In[ ]:
+# In[6]:
 
 def get_loinc_dict(loinc_synonyms):
-    print(str(time.ctime()) + "\t Executed get_loinc_dict of Analysis.py") ##ABMod 
     loinc_dict = defaultdict()
     for i in range(loinc_synonyms.shape[0]):
         loinc_dict[loinc_synonyms.loc[i, 'LOINC_NUM']] = loinc_synonyms.loc[i, 'LOINC_KEY']
@@ -57,10 +54,9 @@ def get_loinc_dict(loinc_synonyms):
 
 # ### Load Data Cube
 
-# In[ ]:
+# In[7]:
 
 def get_data():
-    print(str(time.ctime()) + "\t Executed get_data of Analysis.py") ##ABMod 
     if os.path.exists(filepath + 'datCube.csv'):
         dat = pd.read_csv(filepath + 'datCube.csv', sep=',', encoding = "ISO-8859-1",
             keep_default_na=False, na_values=['', 'NULL', 'N/A', 'N\A'])
@@ -69,13 +65,14 @@ def get_data():
     return dat
 
 
-# In[ ]:
+# In[8]:
 
 def transform_and_filter_data():
-    print(str(time.ctime()) +  "\t Executed transform_and_filter_data of Analysis.py") ##ABMod 
     dat = get_data()
     loinc_synonyms = get_loinc_synonyms()
     
+    if config.print_status == 'Y':
+    	print('Filtering and Factorizing Data')
     feature_col_number = config.num_cuis
     X_unfiltered = dat.copy()  
     X_unfiltered = X_unfiltered.merge(loinc_synonyms, how='left', left_on=config.loinc_col, right_on='LOINC_NUM')     .drop('LOINC_NUM', axis=1)
@@ -154,10 +151,11 @@ def transform_and_filter_data():
 
 # ### Agnostic site-splitting (does not ensure that test labels are present in training data)
 
-# In[ ]:
+# In[8]:
 
 def get_site_splits():
-    print(str(time.ctime()) + "/t Executed get_site_splits of Analysis.py") ##ABMod 
+    if config.print_status == 'Y':
+        print('Generating Splits By Site')
     n_splits = N_SPLITS
     N_rows = X0.shape[0]
     site_list = X0[config.site].unique()
@@ -182,10 +180,11 @@ def get_site_splits():
     return site_splits
 
 
-# In[ ]:
+# In[9]:
 
 def get_indices():
-    print(str(time.ctime()) + "/t Executed get_indices of Analysis.py") ##ABMod 
+    if config.print_status == 'Y':
+        print('Generating Training-Testing Sets')
     test_ind = []
     tune_train_ind = []
     tune_test_ind = []
@@ -193,7 +192,6 @@ def get_indices():
     site_splits = get_site_splits()
 
     for j in range(len(site_splits)):
-        print(str(time.ctime())) ##ABMod 
         np.random.seed(seed=seed)
         test_ind.append(X0[X0[config.site].isin(site_splits[j])].index)
         tune_test_ind.append(np.random.choice(test_ind[j], replace=False, size=int(len(test_ind[j]) * 0.1666666)))
@@ -206,8 +204,8 @@ def get_indices():
 
 
 
-# In[ ]:
-print("The program has started!") ##ABMod 
+# In[10]:
+
 label_encoder_dict, loinc_coder, X_unfiltered, X_labeled, unknowns = transform_and_filter_data()
 
 ## Select columns for labeled and unlabeled/unknown datasets
@@ -234,43 +232,35 @@ unknowns_analysis = unknowns[data_cols]
 
 
 
-# In[ ]:
+# In[11]:
 
 ## Get indices for hyperparameter tuning so that the test set data is not used during evaluating hyperparameters
 test_ind, tune_train_ind, tune_test_ind = get_indices()
 
 
-# In[ ]:
-
-
-
-
 # ### Create dictionary for hyperparameters for hyperopt package
 
-# In[ ]:
+# In[30]:
 
-spacedict = {'criterion': ['gini', 'entropy'],
-           'max_features': np.arange(2, 22, 2) if config.max_features is None else np.arange(config.max_features[0],
-                config.max_features[1], config.max_features[2]),
-           'max_depth': np.arange(5, 35, 5) if config.max_depth is None else np.arange(config.max_depth[0], config.max_depth[1],
+spacedict = {'criterion': ['gini', 'entropy'], 
+            'max_features': np.arange(2, 22, 2) if config.max_features is None else np.arange(config.max_features[0],
+                config.max_features[1], config.max_features[2]), 
+            'max_depth': np.arange(5, 35, 5) if config.max_depth is None else np.arange(config.max_depth[0], config.max_depth[1],
                 config.max_depth[2]),
-           'min_samples_split': np.arange(2, 20, 2) if config.min_samples_split is None else np.arange(config.min_samples_split[0],
+            'min_samples_split': np.arange(2, 20, 2) if config.min_samples_split is None else np.arange(config.min_samples_split[0],
                 config.min_samples_split[1], config.min_samples_split[2]),
-           'n_estimators': np.arange(10, 250, 25) if config.n_estimators is None else np.arange(config.n_estimators[0],
+            'n_estimators': np.arange(10, 250, 25) if config.n_estimators is None else np.arange(config.n_estimators[0],
                 config.n_estimators[1], config.n_estimators[2])}
 
 space4rf = {key: hp.choice(key, spacedict[key]) for key in spacedict.keys()}
 
 
 # ## User hyperopt package to tune RF hyperparameters
-
-# In[ ]:
+if config.print_status == 'Y':
+	print('Beginning Random Forest Hyperparameter Tuning')
 
 def rf_hyperopt_train_test(rf_params):
-    print(str(time.ctime()) + "/t Executed rf_hyperopt_train_test of Analysis.py") ##ABMod 
     score_rf = []
-    if rf_trials.trials[-1]['tid'] % 5 == 0:
-        print('Trial: ', rf_trials.trials[-1]['tid'])
     for i in range(N_SPLITS):
         clf = RandomForestClassifier(random_state=seed, n_jobs=-1, **rf_params)
         X_train = X0.iloc[np.concatenate(tune_train_ind[:i] + tune_train_ind[i + 1:])].drop([config.site, config.loinc_col], axis=1)
@@ -283,11 +273,9 @@ def rf_hyperopt_train_test(rf_params):
         del clf
     return np.mean(score_rf)
 
-
-# In[ ]:
+# In[31]:
 
 def rf_f(rf_params):
-    print(str(time.ctime()) + "/t Executed rf_f of Analysis.py") ##ABMod 
     global rf_best
     f1 = rf_hyperopt_train_test(rf_params)
     if f1 > rf_best:
@@ -295,13 +283,14 @@ def rf_f(rf_params):
         print('new best: ', rf_best, rf_params)
     if rf_trials.trials[-1]['tid'] % 5 == 0:
         pickle.dump(rf_trials, open(filepath + 'rf_tuning_trials_final', 'wb'))
+        if config.print_status == 'Y':
+            print('Trial: ', rf_trials.trials[-1]['tid'])
     return {'loss': -f1, 'status': STATUS_OK}
 
 
-# In[ ]:
+# In[32]:
 
 def get_rf_trials():
-    print(str(time.ctime()) + "/t Executed get_rf_trials of Analysis.py") ##ABMod 
     rf_best = 0
     try:
         rf_trials = pickle.load(open(filepath + 'rf_tuning_trials_final', 'rb'))
@@ -321,7 +310,7 @@ def get_rf_trials():
     return rf_trials
 
 
-# In[ ]:
+# In[33]:
 
 rf_trials = get_rf_trials()
 
@@ -333,13 +322,13 @@ for key in rf_trials.best_trial['misc']['vals'].keys():
 
 # ## User hyperopt package to tune RF hyperparameters for OVR 
 
-# In[ ]:
+if config.print_status == 'Y':
+	print('Beginning One Versus Rest Random Forest Hyperparameter Tuning')
+
+# In[34]:
 
 def ovr_hyperopt_train_test(ovr_params):
-    print(str(time.ctime()) + "/t Executed ovr_hyperopt_train_test of Analysis.py") ##ABMod 
     score_ovr = []
-    if ovr_trials.trials[-1]['tid'] % 5 == 0:
-        print('Trial: ', ovr_trials.trials[-1]['tid'])
     for i in range(N_SPLITS):
         ovr = OneVsRestClassifier(RandomForestClassifier(random_state=seed, n_jobs=-1, **ovr_params))
         X_train = X0.iloc[np.concatenate(tune_train_ind[:i] + tune_train_ind[i + 1:])].drop([config.site, config.loinc_col], axis=1)
@@ -353,10 +342,9 @@ def ovr_hyperopt_train_test(ovr_params):
     return np.mean(score_ovr)
 
 
-# In[ ]:
+# In[35]:
 
 def ovr_f(ovr_params):
-    print(str(time.ctime()) + "/t Executed ovr_f of Analysis.py") ##ABMod 
     global ovr_best
     f1 = ovr_hyperopt_train_test(ovr_params)
     if f1 > ovr_best:
@@ -364,13 +352,14 @@ def ovr_f(ovr_params):
         print('new best: ', ovr_best, ovr_params)
     if ovr_trials.trials[-1]['tid'] % 5 == 0:
         pickle.dump(ovr_trials, open(filepath + 'ovr_tuning_trials_final', 'wb'))
+        if config.print_status == 'Y':
+            print('Trial: ', ovr_trials.trials[-1]['tid'])
     return {'loss': -f1, 'status': STATUS_OK}
 
 
-# In[ ]:
+# In[36]:
 
 def get_ovr_trials():
-    print(str(time.ctime()) + "/t executed get_ovr_trials of Analysis.py") ##ABMod 
     ovr_best = 0
     try:
         ovr_trials = pickle.load(open(filepath + 'ovr_tuning_trials_final', 'rb'))
@@ -390,7 +379,7 @@ def get_ovr_trials():
     return ovr_trials
 
 
-# In[ ]:
+# In[37]:
 
 ovr_trials = get_ovr_trials()
 
@@ -402,10 +391,9 @@ for key in ovr_trials.best_trial['misc']['vals'].keys():
 
 # ## Get performance estimates for models after hyperparameters tuned
 
-# In[ ]:
+# In[38]:
 
 def run_cv(X0, unknowns_analysis):
-    print(str(time.ctime()) + "/t Executed run_cv of Analysis.py") ##ABMod 
     metric_names = ['Accuracy', 'F1 weighted', 'F1 macro', 'F1 micro']
     output_names = ['accuracy', 'f1_weighted', 'f1_macro', 'f1_micro']
 
@@ -424,7 +412,8 @@ def run_cv(X0, unknowns_analysis):
     rf_unk_preds = []
 
     for i in range(N_SPLITS):
-        print("RF CV: ", i + 1)
+        if config.print_status == 'Y':
+            print("RF CV: ", i + 1)
         X_train = X0[~X0[config.site].isin(site_splits[i])].drop([config.site, config.loinc_col], axis=1)
         y_train = X_train.pop('LOINC_KEY')
         X_test = X0[X0[config.site].isin(site_splits[i])].drop([config.site, config.loinc_col], axis=1)
@@ -451,7 +440,8 @@ def run_cv(X0, unknowns_analysis):
 
         del rf
 
-        print("OVR CV: ", i + 1)
+        if config.print_status == 'Y':
+        	print("OVR CV: ", i + 1)
         ovr = OneVsRestClassifier(RandomForestClassifier(criterion=ovr_final_parms['criterion'],
             max_features=ovr_final_parms['max_features'],
             max_depth=ovr_final_parms['max_depth'],
@@ -506,16 +496,19 @@ def run_cv(X0, unknowns_analysis):
     return X_cvs, X_unk_cvs, metrics
 
 
-# In[ ]:
+# In[39]:
 
 if config.run_cv == 'Y':
+    if config.print_status == 'Y':
+        print('Beginning Cross-validation')
     X_cvs, X_unk_cvs, cv_metrics = run_cv(X0, unknowns_analysis)
 
 
 # ## Fit model to full labeled dataset, make predictions, then make predictions on unlabeled dataset
 
-# In[ ]:
-
+# In[40]:
+if config.print_status == 'Y':
+    print('Fitting RF and OVR Models to Full Dataset')
 X_overall = X0.drop([config.site, config.loinc_col, 'LOINC_KEY'], axis=1)
 y_overall = X0['LOINC_KEY']
 
@@ -550,20 +543,20 @@ ovr_unknown_preds = ovr_final.predict(X_unk_overall)
 ovr_unk_preds_frame = pd.DataFrame(ovr_unknown_preds, index=X_unk_overall.index, columns=['OVRFullModelPredLOINCKey'])
 
 
-# In[ ]:
+# In[41]:
 
 if config.run_cv == 'Y':
     X0 = X_cvs.copy()
     unknowns_analysis = X_unk_cvs.copy()
 
 
-# In[ ]:
+# In[64]:
 
 X_final = X0.merge(rf_preds_frame, how='inner', left_index=True, right_index=True)     .merge(ovr_preds_frame, how='inner', left_index=True, right_index=True)
 unknowns_final = unknowns_analysis.merge(rf_unk_preds_frame, how='inner', left_index=True, right_index=True)     .merge(ovr_unk_preds_frame, how='inner', left_index=True, right_index=True)
 
 
-# In[ ]:
+# In[65]:
 
 ## If original LOINC code is a member of the predicted LOINC_KEY, retain the original LOINC code as the 
 ## final label
@@ -575,12 +568,12 @@ X_final['OVRFullModelFinalLOINCKey'] = np.where(~(X_final[config.loinc_col] == X
             X_final[config.loinc_col], X_final['OVRFullModelPredLOINCKey'])
 
 
-# In[ ]:
+# In[66]:
 
 cols_to_transform = X_final.columns[X_final.columns.isin(label_encoder_dict.keys())]
 
 
-# In[ ]:
+# In[67]:
 
 ## Inverse transforms factor variables back to original data
 X_final[cols_to_transform] = X_final[cols_to_transform]     .apply(lambda x: label_encoder_dict[x.name].inverse_transform(x))
@@ -597,7 +590,10 @@ X_final[[config.loinc_col, 'LOINC_KEY', 'RFFullModelPredLOINCKey', 'OVRFullModel
 unknowns_final[[config.loinc_col, 'RFFullModelPredLOINCKey', 'OVRFullModelPredLOINCKey']] = loinc_coder     .inverse_transform(unknowns_final[[config.loinc_col, 'RFFullModelPredLOINCKey', 'OVRFullModelPredLOINCKey']])
 
 
-# In[ ]:
+# In[68]:
+
+if config.print_status == 'Y':
+    print('Generating and Saving Final Data Output')
 
 X_final = X_labeled[[config.site, config.test_col, 'CleanedTestName', config.spec_col, 'CleanedSpecimen', 
     config.count, config.loinc_col, 'LOINC_KEY']] \
@@ -612,3 +608,5 @@ unknowns_final = unknowns[[config.site, config.test_col, 'CleanedTestName', conf
 X_final.to_csv(filepath + 'labeled_data_predictions.csv')
 unknowns_final.to_csv(filepath + 'unlabeled_data_predictions.csv')
 
+if config.print_status == 'Y':
+    print('FINISHED!')
