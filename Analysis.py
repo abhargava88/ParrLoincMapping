@@ -3,7 +3,7 @@
 
 # In[ ]:
 
-get_ipython().magic('matplotlib inline') ##ABMod - comment out this line if running without iPython
+get_ipython().magic('matplotlib inline')
 import pandas as pd
 import numpy as np
 from scipy import stats
@@ -48,7 +48,7 @@ filepath = config.out_dir
 # In[ ]:
 
 def get_loinc_dict(loinc_synonyms):
-    print(str(time.ctime()) + " Executed the get_loinc_dict() function of Analysis.py.") ##ABMod 
+    print(str(time.ctime()) + "\t Executed get_loinc_dict of Analysis.py") ##ABMod 
     loinc_dict = defaultdict()
     for i in range(loinc_synonyms.shape[0]):
         loinc_dict[loinc_synonyms.loc[i, 'LOINC_NUM']] = loinc_synonyms.loc[i, 'LOINC_KEY']
@@ -60,12 +60,11 @@ def get_loinc_dict(loinc_synonyms):
 # In[ ]:
 
 def get_data():
-    print(str(time.ctime()) + " Executed the get_data() function of Analysis.py.") ##ABMod 
+    print(str(time.ctime()) + "\t Executed get_data of Analysis.py") ##ABMod 
     if os.path.exists(filepath + 'datCube.csv'):
         dat = pd.read_csv(filepath + 'datCube.csv', sep=',', encoding = "ISO-8859-1",
             keep_default_na=False, na_values=['', 'NULL', 'N/A', 'N\A'])
     else:
-        print(str(time.ctime()) + " Executed the else limb of the get_data() function of Analysis.py - this calls add_string_distance_features.") ##ABMod 
         dat = add_string_distance_features()
     return dat
 
@@ -73,7 +72,7 @@ def get_data():
 # In[ ]:
 
 def transform_and_filter_data():
-    print(str(time.ctime()) + " Executed the transform_and_filter_data() function of Analysis.py.") ##ABMod 
+    print(str(time.ctime()) +  "\t Executed transform_and_filter_data of Analysis.py") ##ABMod 
     dat = get_data()
     loinc_synonyms = get_loinc_synonyms()
     
@@ -158,7 +157,7 @@ def transform_and_filter_data():
 # In[ ]:
 
 def get_site_splits():
-    print(str(time.ctime()) + " Executed the get_site_splits() function of Analysis.py.") ##ABMod 
+    print(str(time.ctime()) + "/t Executed get_site_splits of Analysis.py") ##ABMod 
     n_splits = N_SPLITS
     N_rows = X0.shape[0]
     site_list = X0[config.site].unique()
@@ -186,7 +185,7 @@ def get_site_splits():
 # In[ ]:
 
 def get_indices():
-    print(str(time.ctime()) + " Executed the get_indices() function of Analysis.py.") ##ABMod 
+    print(str(time.ctime()) + "/t Executed get_indices of Analysis.py") ##ABMod 
     test_ind = []
     tune_train_ind = []
     tune_test_ind = []
@@ -194,6 +193,7 @@ def get_indices():
     site_splits = get_site_splits()
 
     for j in range(len(site_splits)):
+        print(str(time.ctime())) ##ABMod 
         np.random.seed(seed=seed)
         test_ind.append(X0[X0[config.site].isin(site_splits[j])].index)
         tune_test_ind.append(np.random.choice(test_ind[j], replace=False, size=int(len(test_ind[j]) * 0.1666666)))
@@ -207,7 +207,7 @@ def get_indices():
 
 
 # In[ ]:
-
+print("The program has started!") ##ABMod 
 label_encoder_dict, loinc_coder, X_unfiltered, X_labeled, unknowns = transform_and_filter_data()
 
 ## Select columns for labeled and unlabeled/unknown datasets
@@ -267,7 +267,7 @@ space4rf = {key: hp.choice(key, spacedict[key]) for key in spacedict.keys()}
 # In[ ]:
 
 def rf_hyperopt_train_test(rf_params):
-    print(str(time.ctime()) + " Executed the rf_hyperopt_train_test() function of Analysis.py.") ##ABMod 
+    print(str(time.ctime()) + "/t Executed rf_hyperopt_train_test of Analysis.py") ##ABMod 
     score_rf = []
     if rf_trials.trials[-1]['tid'] % 5 == 0:
         print('Trial: ', rf_trials.trials[-1]['tid'])
@@ -287,7 +287,7 @@ def rf_hyperopt_train_test(rf_params):
 # In[ ]:
 
 def rf_f(rf_params):
-    print(str(time.ctime()) + " Executed the rf_f() function of Analysis.py.") ##ABMod 
+    print(str(time.ctime()) + "/t Executed rf_f of Analysis.py") ##ABMod 
     global rf_best
     f1 = rf_hyperopt_train_test(rf_params)
     if f1 > rf_best:
@@ -301,7 +301,7 @@ def rf_f(rf_params):
 # In[ ]:
 
 def get_rf_trials():
-    print(str(time.ctime()) + " Executed the get_rf() function of Analysis.py.") ##ABMod 
+    print(str(time.ctime()) + "/t Executed get_rf_trials of Analysis.py") ##ABMod 
     rf_best = 0
     try:
         rf_trials = pickle.load(open(filepath + 'rf_tuning_trials_final', 'rb'))
@@ -336,7 +336,7 @@ for key in rf_trials.best_trial['misc']['vals'].keys():
 # In[ ]:
 
 def ovr_hyperopt_train_test(ovr_params):
-    print(str(time.ctime()) + " Executed the ovr_hyperopt_train_test() function of Analysis.py.") ##ABMod 
+    print(str(time.ctime()) + "/t Executed ovr_hyperopt_train_test of Analysis.py") ##ABMod 
     score_ovr = []
     if ovr_trials.trials[-1]['tid'] % 5 == 0:
         print('Trial: ', ovr_trials.trials[-1]['tid'])
@@ -356,7 +356,7 @@ def ovr_hyperopt_train_test(ovr_params):
 # In[ ]:
 
 def ovr_f(ovr_params):
-    print(str(time.ctime()) + " Executed the ovr_f() function of Analysis.py.") ##ABMod 
+    print(str(time.ctime()) + "/t Executed ovr_f of Analysis.py") ##ABMod 
     global ovr_best
     f1 = ovr_hyperopt_train_test(ovr_params)
     if f1 > ovr_best:
@@ -370,7 +370,7 @@ def ovr_f(ovr_params):
 # In[ ]:
 
 def get_ovr_trials():
-    print(str(time.ctime()) + " Executed the get_ovr_trials() function of Analysis.py.") ##ABMod 
+    print(str(time.ctime()) + "/t executed get_ovr_trials of Analysis.py") ##ABMod 
     ovr_best = 0
     try:
         ovr_trials = pickle.load(open(filepath + 'ovr_tuning_trials_final', 'rb'))
@@ -405,7 +405,7 @@ for key in ovr_trials.best_trial['misc']['vals'].keys():
 # In[ ]:
 
 def run_cv(X0, unknowns_analysis):
-    print(str(time.ctime()) + " Executed the run_cv() function of Analysis.py.") ##ABMod 
+    print(str(time.ctime()) + "/t Executed run_cv of Analysis.py") ##ABMod 
     metric_names = ['Accuracy', 'F1 weighted', 'F1 macro', 'F1 micro']
     output_names = ['accuracy', 'f1_weighted', 'f1_macro', 'f1_micro']
 

@@ -12,7 +12,6 @@ import config
 # In[2]:
 
 def group_func(group):
-    print(str(time.ctime()) + " Executed the group_func() function of LOINCSynonyms.py.") ##ABMod
     if group.LOINC_NUM.count() >= 2:
         return group
 
@@ -22,7 +21,7 @@ def group_func(group):
 # In[3]:
 
 def get_loinc_groups():
-    print(str(time.ctime()) + " Executed the get_loinc_groups() function of LOINCSynonyms.py.") ##ABMod
+    print(str(time.ctime()) + "/t executed get_loinc_grouops of LoincSynonyms.py") ##ABMod 
     raw_loinc_dat = pd.read_csv(config.loinc_file_path, 
         usecols=['LOINC_NUM', 'COMPONENT', 'PROPERTY', 'TIME_ASPCT', 'SYSTEM', 'METHOD_TYP',
            'SCALE_TYP', 'STATUS', 'CLASSTYPE', 'VersionLastChanged'], low_memory=False)
@@ -48,7 +47,7 @@ def get_loinc_groups():
 # In[4]:
 
 def quant_nans(group):
-    print(str(time.ctime()) + " Executed the quant_NANs() function of LOINCSynonyms.py.") ##ABMod
+    print(str(time.ctime()) + "Executed quant_nans of LoincSynonyms.py") ##ABMod 
     if group[group.METHOD_TYP.isnull()].shape[0] == 1:
         _ = group['CANDIDATE_KEYS'] = 1
         _ = group['LOINC_KEY'] = group[group.METHOD_TYP.isnull()].LOINC_NUM.values[0]
@@ -81,7 +80,7 @@ def quant_nans(group):
 # In[3]:
 
 def get_loinc_synonyms():
-    print(str(time.ctime()) + " Executed the get_loinc_synonyms() function of LOINCSynonyms.py.") ##ABMod
+    print(str(time.ctime()) + "Executed get_loinc_synonyms of LoincSynonyms.py") ##ABMod 
     raw_loinc_mults = get_loinc_groups()
 
     raw_loinc_mults = raw_loinc_mults.groupby(['COMPONENT', 'PROPERTY', 'TIME_ASPCT', 'SYSTEM', 'SCALE_TYP'])         .apply(quant_nans)

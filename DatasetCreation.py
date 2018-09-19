@@ -3,7 +3,7 @@
 
 # In[1]:
 
-get_ipython().magic('matplotlib inline') ##ABMod - comment out this line if running outside of iPython
+get_ipython().magic('matplotlib inline')
 import pandas as pd
 import numpy as np
 import os
@@ -25,12 +25,12 @@ from rpy2.robjects.packages import importr
 # In[2]:
 
 def build_cube():
-    print(str(time.ctime()) + " Executed the build_cube() function of DatasetCreation.py.") ##ABMod 
+    print(str(time.ctime()) + "/t Executed build_cube of DSC.py") ##ABMod 
     if config.print_status == 'Y':
         print('Building analytic data cube')
-    agg_source_data = pd.read_csv(config.in_file, sep=config.delim, quoting=csv.QUOTE_NONE, 
-              encoding = "ISO-8859-1", keep_default_na=False, na_values=config.missing, dtype = config.datatypes) ##ABMod - added dtype keywordargument
-    
+    agg_source_data = pd.read_csv(config.in_file, sep=config.delim, quoting=csv.QUOTE_NONE,
+              encoding = "ISO-8859-1", keep_default_na=False, na_values=config.missing, dtype = config.datatypes) ##ABMod - dtype specification
+
     if os.path.exists(config.out_dir + "Cleaned_Lab_Names.csv") and os.path.exists(config.out_dir + "Cleaned_Specimen_Names.csv"):
         cleaned_tests = pd.read_csv(config.out_dir + "Cleaned_Lab_Names.csv", sep="|", quoting=csv.QUOTE_NONE,
                                 encoding = "ISO-8859-1", keep_default_na=False,
@@ -40,22 +40,22 @@ def build_cube():
                                   na_values=config.missing)
     else:
         cleaned_tests, cleaned_specimen = import_source_data()
-        
+
     agg_source_data[config.test_col] = agg_source_data[config.test_col].str.strip().str.upper()
     agg_source_data[config.spec_col] = agg_source_data[config.spec_col].str.strip().str.upper()
     agg_source_data[config.units] = agg_source_data[config.units].str.strip().str.upper()
-    
-    joined_dat = agg_source_data.merge(cleaned_tests, how='left', left_on=[config.site, config.test_col], 
+
+    joined_dat = agg_source_data.merge(cleaned_tests, how='left', left_on=[config.site, config.test_col],
                                    right_on=['Site', 'OriginalTestName'])
-    joined_dat = joined_dat.merge(cleaned_specimen, how='left', left_on=[config.site, config.spec_col], 
+    joined_dat = joined_dat.merge(cleaned_specimen, how='left', left_on=[config.site, config.spec_col],
                                  right_on=['Site', 'OriginalSpecimen'])
     joined_dat = joined_dat.drop(['Site_x', 'Site_y', 'OriginalTestName', 'OriginalSpecimen'], axis=1)
-    
+
     ## Get total # of lab results per site, create normalized 'FreqPercent' variable
     joined_dat = joined_dat.merge(pd.Series.to_frame(joined_dat.groupby(config.site)[config.count].sum(), name='TotalCount').reset_index(),
                                  how='inner', left_on=config.site, right_on=config.site)
     joined_dat['FreqPercent'] = joined_dat[config.count]/joined_dat.TotalCount * 100.0
-    
+
     return joined_dat
 
 
@@ -64,7 +64,7 @@ def build_cube():
 # In[3]:
 
 def compile_cuis(data):
-    print(str(time.ctime()) + " Executed the compile_cuis() function of DatasetCreation.py.") ##ABMod
+    print(str(time.ctime()) + "/t Executed compile_cuis of DSC.py") ##ABMod 
     master_list = defaultdict(list)
     for i in range(data.shape[0]):
         if data.loc[i, 'SourceTerm'] not in master_list:
@@ -77,11 +77,11 @@ def compile_cuis(data):
 # In[4]:
 
 def add_cuis_to_cube(dat):
-    print(str(time.ctime()) + " Executed the add_cuis_to_cube() function of DatasetCreation.py.") ##ABMod
+    print(str(time.ctime()) + "/t Executed add_cuis_to_cube of DSC.py") ##ABMod 
     if config.print_status == 'Y':
         print('Obtaining UMLS CUIs')
     feature_col_number = config.num_cuis
-    if (os.path.exists(config.out_dir + "UMLS_Mapped_Specimen_Names.csv") and 
+    if (os.path.exists(config.out_dir + "UMLS_Mapped_Specimen_Names.csv") and
         os.path.exists(config.out_dir + "UMLS_Mapped_Test_Names.csv")):
         master_spec_UMLS = compile_cuis(pd.read_csv(config.out_dir + "UMLS_Mapped_Specimen_Names.csv", sep="|"))
         master_test_UMLS = compile_cuis(pd.read_csv(config.out_dir + "UMLS_Mapped_Test_Names.csv", sep="|"))
@@ -89,11 +89,11 @@ def add_cuis_to_cube(dat):
         test_input, specimen_input = data_setup()
         master_spec_UMLS = compile_cuis(parse_dat(specimen_input, "Specimen"))
         master_test_UMLS = compile_cuis(parse_dat(test_input, "Test"))
-        
+
     for i in range(feature_col_number):
         dat['SpecCUI{0}'.format(i + 1)] = 'NONE'
         dat['TestCUI{0}'.format(i + 1)] = 'NONE'
-        
+
     for j in range(dat.shape[0]):
         for k in range(len(master_spec_UMLS[dat.at[j, 'CleanedSpecimen']])):
             if k < feature_col_number:
@@ -115,7 +115,7 @@ short_to_long, parsed_loinc_fields = parse_loinc()
 
 ## NOTE: This can be moved to a csv file
 def map_loinc_system():
-    print(str(time.ctime()) + " Executed the map_loinc_system() function of DatasetCreation.py.") ##ABMod
+    print(str(time.ctime()) + "/t Executed map_loinc_system of DSC.py") ##ABMod 
     if os.path.exists(config.out_dir + "LOINC_System_to_Long.csv"):
         system_map = pd.read_csv(config.out_dir + "LOINC_System_to_Long.csv", sep="|")
     else:
@@ -145,7 +145,7 @@ def map_loinc_system():
 # In[7]:
 
 def map_loinc_token_counts():
-    print(str(time.ctime()) + " Executed the map_loinc_token_counts() function of DatasetCreation.py.") ##ABMod
+    print(str(time.ctime()) + "/t Executed map_loinc_token_counts of DSC.py") ##ABMod 
     ## Get highest count for each short name token mapped by counts to long name tokens (from the MapLOINCFields script)
     idx = short_to_long.groupby(['Token'])['Count'].transform(max) == short_to_long['Count']
     loinc_terms_max = short_to_long[idx].drop('Count', 1).reset_index(drop = True)
@@ -173,7 +173,7 @@ def map_loinc_token_counts():
 # In[8]:
 
 def group_func(group):
-    print(str(time.ctime()) + " Executed the group_func() function of DatasetCreation.py.") ##ABMod
+    print(str(time.ctime()) + "t/ Executed groupfunction of DSC.py") ##ABMod 
     ## If Token == TokenMap, make this the FinalTokenMap, otherwise use the shortest TokenMap as the key
     if not group['AcronymnMap'].isnull().all():
         _ = group['FinalTokenMap'].fillna(str(group.AcronymnMap.dropna().unique()[0]), inplace=True)
@@ -189,13 +189,13 @@ def group_func(group):
 # In[9]:
 
 def combine_loinc_mapping():
-    print(str(time.ctime()) + " Executed the combine_loinc_mapping() function of DatasetCreation.py.") ##ABMod
+    print(str(time.ctime()) + "/t Executed combine_loinc_mapping of DSC.py") ##ABMod 
     system_map_final = map_loinc_system()
     loinc_terms_max = map_loinc_token_counts()
     loincmap = system_map_final.merge(loinc_terms_max, how='outer', left_on='SystemToken', right_on='Token')
-    loincmap = loincmap.set_value(loincmap[loincmap['Token'].isnull()].index, 'Token', 
+    loincmap = loincmap.set_value(loincmap[loincmap['Token'].isnull()].index, 'Token',
                               loincmap[loincmap['Token'].isnull()]['SystemToken'])
-    loincmap = loincmap.set_value(loincmap[loincmap['TokenMap'].isnull()].index, 'TokenMap', 
+    loincmap = loincmap.set_value(loincmap[loincmap['TokenMap'].isnull()].index, 'TokenMap',
                               loincmap[loincmap['TokenMap'].isnull()]['SystemMap'])
     loincmap = loincmap.groupby('Token').apply(group_func)
     loincmap = loincmap[['Token', 'FinalTokenMap']].drop_duplicates().reset_index(drop=True)
@@ -207,7 +207,7 @@ def combine_loinc_mapping():
 # Find best string matches between source data test or specimen tokens and mappings from LOINC short name to
 # LOINC long name words
 def get_matches(data_col, loincmap):
-    print(str(time.ctime()) + " Executed the get_matches() function of DatasetCreation.py.") ##ABMod
+    print(str(time.ctime()) + " /t Executed get_matches of DSC.py") ##ABMod 
     robjects.numpy2ri.activate()
     stringdist = importr('stringdist', lib_loc=config.lib_loc)
     tokenized_list = [data_col[k].split() for k in range(len(data_col))]
@@ -227,7 +227,7 @@ def get_matches(data_col, loincmap):
 # In[11]:
 
 def concatenate_match_results(input_matrix, data_type):
-    print(str(time.ctime()) + " Executed the concatenate_match_results() function of DatasetCreation.py.") ##ABMod
+    print(str(time.ctime()) + " /t Executed concatenate_match_results of DSC.py") ##ABMod 
     n_rows = input_matrix.shape[0]
     n_cols = input_matrix.shape[1]
     for i in range(n_rows):
@@ -243,12 +243,12 @@ def concatenate_match_results(input_matrix, data_type):
 # In[12]:
 
 def add_string_distance_features():
-    print(str(time.ctime()) + " Executed the add_string_distance_features() function of DatasetCreation.py.") ##ABMod
+    print(str(time.ctime()) + "Adding string distance features to the datacube.") ##ABMod
     joined_data = build_cube()
     data = add_cuis_to_cube(joined_data)
-    
+
     loincmap = combine_loinc_mapping()
-    
+
     unique_tests = data[~data.CleanedTestName.isnull()].CleanedTestName.unique()
     unique_specimen_types = data[~data.CleanedSpecimen.isnull()].CleanedSpecimen.unique()
 
@@ -266,20 +266,20 @@ def add_string_distance_features():
     concat_jw_spec_match_result.columns.values[0] = 'SpecimenMapJW'
 
     concat_test_match_result = pd.concat([concat_lv_test_match_result, concat_jw_test_match_result], axis=1)
-    concat_spec_match_result = pd.concat([concat_lv_spec_match_result, concat_jw_spec_match_result], 
+    concat_spec_match_result = pd.concat([concat_lv_spec_match_result, concat_jw_spec_match_result],
         axis=1)
-    
+
     dat = data.merge(concat_test_match_result, how='left', left_on='CleanedTestName', right_index=True)
     dat = dat.merge(concat_spec_match_result, how='left', left_on='CleanedSpecimen', right_index=True)
-    
+
     loinc_comp_syst = parsed_loinc_fields[['LOINC', 'Component', 'System']]
-    loinc_comp_syst = loinc_comp_syst[(~pd.isnull(loinc_comp_syst.System)) & 
+    loinc_comp_syst = loinc_comp_syst[(~pd.isnull(loinc_comp_syst.System)) &
         (loinc_comp_syst.System != '')].reset_index(drop=True)
     loinc_comp_syst['ExpandedSystem'] = np.nan
     loinc_comp_syst.ExpandedSystem = loinc_comp_syst.ExpandedSystem.astype(object)
-    
+
     loinc_num_set = loinc_comp_syst.LOINC.unique()
-    
+
     for i in range(loinc_comp_syst.shape[0]):
         if not pd.isnull(loinc_comp_syst.System[i]):
             loinc_comp_syst.set_value(i, 'System', loinc_comp_syst.System[i].split(" "))
@@ -289,16 +289,17 @@ def add_string_distance_features():
                     loinc_comp_syst.set_value(i, 'ExpandedSystem', mapped_term)
                 else:
                     loinc_comp_syst.loc[i, 'ExpandedSystem'] = loinc_comp_syst.ExpandedSystem[i] + " " + mapped_term
-                
+
     unique_combos = dat[['TestNameMapJW', 'SpecimenMapJW', 'TestNameMapLV', 'SpecimenMapLV']].drop_duplicates().reset_index(drop=True)
     unique_components = loinc_comp_syst.Component.unique()
     unique_system = loinc_comp_syst[~pd.isnull(loinc_comp_syst.ExpandedSystem)].ExpandedSystem.unique()
-    
-    unique_combos = pd.concat([unique_combos, pd.DataFrame(columns=[['PredictedComponentJW', 'ComponentMatchDistJW', 'PredictedComponentLV', 'ComponentMatchDistLV','PredictedSystemJW', 'SystemMatchDistJW', 'PredictedSystemLV', 'SystemMatchDistLV']])])
-    
+
+    unique_combos = pd.concat([unique_combos, pd.DataFrame(columns=[['PredictedComponentJW', 'ComponentMatchDistJW', 'PredictedComponentLV', 'ComponentMatchDistLV',
+               'PredictedSystemJW', 'SystemMatchDistJW', 'PredictedSystemLV', 'SystemMatchDistLV']])])
+
     robjects.numpy2ri.activate()
     stringdist = importr('stringdist', lib_loc="C://Program Files/R/R-3.4.1/library")
-    
+
     for i in range(unique_combos.shape[0]):
         matches = stringdist.stringdist(unique_combos.loc[i, 'TestNameMapJW'], unique_components,
             method='jw', p=0)
@@ -323,17 +324,14 @@ def add_string_distance_features():
         bestmatch = np.argmin(matches)
         unique_combos.loc[i, 'PredictedSystemLV'] = unique_system[bestmatch]
         unique_combos.loc[i, 'SystemMatchDistLV'] = matches[bestmatch]
-        
+
     dat = dat.merge(unique_combos, how='left', left_on=['TestNameMapLV', 'TestNameMapJW', 'SpecimenMapLV',
        'SpecimenMapJW'], right_on=['TestNameMapLV', 'TestNameMapJW', 'SpecimenMapLV',
        'SpecimenMapJW'])
-    
+
     dat.to_csv(config.out_dir + 'datCube.csv', index=False)
-    
+
     return dat
 
 
 # In[ ]:
-
-
-

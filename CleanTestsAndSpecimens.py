@@ -6,8 +6,8 @@
 import re
 import config
 import pandas as pd
-import time ##ABMod
 from collections import defaultdict, Counter
+import time 
 
 
 # In[2]:
@@ -18,7 +18,7 @@ REJECTION_THRESHOLD = config.rejection_threshold
 # In[3]:
 
 def import_source_data():
-    print(str(time.ctime()) + " Executed the import_source_data() function of CleanTestsAndSpecimens.py.") ##ABMod 
+    print(str(time.ctime()) + "/t Executed import_source_data of CTAS.py") ##ABMod 
     if config.print_status == 'Y':
         print('Importing source data')
     testNameList = defaultdict(list)
@@ -51,7 +51,7 @@ def import_source_data():
 # In[4]:
 
 def clean_terms(sourceData, dataType):
-    print(str(time.ctime()) + " Executed the clean_terms() function of CleanTestsAndSpecimens.py.") ##ABMod 
+    print(str(time.ctime()) + "/t Executed clean_terms of CTAS.py") ##ABMod 
     if config.print_status == 'Y':
         print('Cleaning source data')
     insigWords = ["IN", "FROM", "ON", "OR", "OF", "BY", "AND", "&", "TO", "BY", "", " "]
@@ -111,7 +111,7 @@ def clean_terms(sourceData, dataType):
 # In[5]:
 
 def convert_to_df(cleanedList, dataType):
-    print(str(time.ctime()) + " Executed the convert_to_df() function of CleanTestsAndSpecimens.py.") ##ABMod 
+    print(str(time.ctime()) + "/t Executed convert_to_df of CTAS.py") ##ABMod 
     if dataType == "testNames":
         cols = ['Site', 'OriginalTestName', 'CleanedTestName']
     else:
@@ -125,7 +125,7 @@ def convert_to_df(cleanedList, dataType):
 # In[6]:
 
 def filter_out_frequent_tokens(cleanedTestNameList, siteWordCount, siteTotalWordCount, discardedTerms):
-    print(str(time.ctime()) + " Executed the filter_out_frequent_tokens() function of CleanTestsAndSpecimens.py.") ##ABMod 
+    print(str(time.ctime()) + "/t Executed filter function of CTAS.py") ##ABMod 
     for site in siteWordCount.keys():
         for token in siteWordCount[site].keys():
             siteWordCtPct = 100.0 * siteWordCount[site][token] / siteTotalWordCount[site]
@@ -140,14 +140,14 @@ def filter_out_frequent_tokens(cleanedTestNameList, siteWordCount, siteTotalWord
 # In[7]:
 
 def write_cleaned_terms(pathName, data):
-    print(str(time.ctime()) + " Executed the write_cleaned_terms() function of CleanTestsAndSpecimens.py.") ##ABMod 
+    print(str(time.ctime()) + "/t Executed write_cleaned_terms of CTAS.py") ##ABMod 
     data.to_csv(pathName, sep='|')
 
 
 # In[8]:
 
 def write_word_ct_csv(pathName, data):
-    print(str(time.ctime()) + " Executed the write_word_ct_csv() function of CleanTestsAndSpecimens.py.") ##ABMod 
+    print(str(time.ctime()) + "/t Executed write_word_ct_csv of CTAS.py") ##ABMod 
     with open(pathName, 'w') as out_file:
         out_file.write("Site|Term|Count|Percent\n")
         for site in data.keys():
@@ -161,7 +161,7 @@ def write_word_ct_csv(pathName, data):
 # In[9]:
 
 def  write_discarded_terms(pathName, discardedTerms):
-    print(str(time.ctime()) + " Executed the write_discarded_terms() function of CleanTestsAndSpecimens.py.") ##ABMod 
+    print(str(time.ctime()) + "/t Executed write_discarded_terms of CTAS.py") ##ABMod 
     with open(pathName, 'w') as out_file:
         out_file.write("Site|DiscardedName\n")
         for site in discardedTerms.keys():
