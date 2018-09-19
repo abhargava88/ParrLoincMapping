@@ -1,21 +1,22 @@
 ##### Configuration settings ########
 ## This program assumes that you have collected raw laboratory data and aggregated it, grouping by [Lab Test Name, Specimen Type, Units, and LOINC code].
-## Using the aggregated groups, the summary measures used as features in the algorithm include [Mean, Minimum, Maximum, 5th Percentile, 25th Percentile,
+## Using the aggregated groups, the summary measures used as features in the algorithm include [Mean, Minimum, Maximum, 5th Percentile, 25th Percentile, 
 ## Median, 75th Percentile, 95th percentile, and Count]
 ## The aggregate source data should be stored in a .txt, .csv, or .xls file
 
 ## Enter the directory where you would like the intermediate output files to be stored:
 ## Example: 'C:/Users/me/Documents/MyFiles/'
-out_dir = r"M:/LoincMappingV2/output//"
+out_dir = r"M:/LoincMappingV3/output//"
 
 ## Enter the filepath where your raw source data file is located along with :
 ## Example: ## Example: 'C:/Users/me/Documents/MyFiles/Data.txt'
-in_file = r"M:/LoincMappingV2/data/AggLabsCopy.csv"
+in_file = r"M:/LoincMappingV3/data/AggLabsCopy.csv"
+
 ## If your data file is delimited by character(s) other than a comma, please indicate the delimeter:
 ## Example: delimiter = '|'
 delim = '|'
 
-## Throughout this data transformation pipeline, intermediate files can be written to disk both for examination and for loading in subsequent model steps to avoid having to recreate them. The following files created while cleaning source data text can be written to file:
+## Throughout this data transformation pipeline, intermediate files can be written to disk both for examination and for loading in subsequent model steps to avoid having to recreate them. The following files created while cleaning source data text can be written to file: 
 ## 1. Cleaned_Lab_Names.csv
 ## 2. By_Site_Lab_Word_Count.csv
 ## 3. Discarded_Lab_Names.csv
@@ -38,7 +39,7 @@ write_file_umls_cuis = True
 
 ## Enter the full filepath to your local loinc.csv file installation:
 ## Example: 'C:/Users/me/Documents/MyFiles/loinc.csv'
-loinc_file_path = r"M:/LoincMappingV2/data/Loinc.csv"
+loinc_file_path = r"M:/LoincMappingV3/data/Loinc.csv"
 
 ## Enter the full filepath to your local R library file location (where stringdist package is installed)
 ## Example: 'C:/Program Files/R/R-3.4.1/library'
@@ -98,7 +99,7 @@ perc_75 = 'Perc_75'
 perc_95 = 'Perc_95'
 
 ## Enter the name of the column in your data source that contains the COUNT:
-count = 'Count,,,,'
+count = 'Count'
 
 ## Enter the name of the column in your data source that contains the SITE IDENTIFIER:
 site = 'Sta3n'
@@ -107,10 +108,7 @@ site = 'Sta3n'
 ## Example: missings = ["*MISSING", 'UNKNOWN', '-1']
 missing = ['', 'NULL', '*Missing*', '*Unknown at this time*']
 
-##ABMod -  dtypes for each column in the CSV specified - names as above. Need explicit conversion of column names to strings.
-datatypes = {str(site):str}
-
-## Please enter a numeric rejection threshold (example: 4.0) for eliminating high frequency tokens from source data test names.
+## Please enter a numeric rejection threshold (example: 4.0) for eliminating high frequency tokens from source data test names. 
 ## Default will not remove any tokens during source data pre-processing.
 rejection_threshold = None
 
@@ -160,3 +158,4 @@ min_samples_split = None
 ## Default setting is for n_estimators to be tested in increments of 25 over the space from 10 to 250, represented programatically as np.arange(10, 250, 25). If the user wants to modify the search space, please change the following line of code to: n_estimators = [MINIMUM ESTIMATORS, MAXIMUM ESTIMATORS, INCREMENT]
 ## Example: n_estimators = [10, 250, 25]
 n_estimators = None
+
