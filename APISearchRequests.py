@@ -15,15 +15,19 @@ import numpy as np
 import os
 import urllib
 import config
+import csv
 
 
 # In[3]:
 
 def data_setup():
-    print(str(time.ctime()) + "/t Executed data_setup of APISearchRequests.py") ##ABMod 
     if os.path.exists(config.out_dir + "Cleaned_Lab_Names.csv") and os.path.exists(config.out_dir + "Cleaned_Specimen_Names.csv"):
-        test_input = pd.read_csv(config.out_dir + "Cleaned_Lab_Names.csv", sep='|')
-        specimen_input = pd.read_csv(config.out_dir + "Cleaned_Specimen_Names.csv", sep='|')
+        test_input = pd.read_csv(config.out_dir + "Cleaned_Lab_Names.csv", sep='|', quoting=csv.QUOTE_NONE,
+                                encoding = "ISO-8859-1", keep_default_na=False,
+                                na_values=config.missing)
+        specimen_input = pd.read_csv(config.out_dir + "Cleaned_Specimen_Names.csv", sep='|', quoting=csv.QUOTE_NONE,
+                                encoding = "ISO-8859-1", keep_default_na=False,
+                                na_values=config.missing)
     else:
         test_input, specimen_input = import_source_data()    
     return [test_input, specimen_input]
@@ -32,7 +36,6 @@ def data_setup():
 # In[ ]:
 
 def uri_setup():
-    print(str(time.ctime()) + "/t Executed URI_Setup of APISearchRequests.py") ##ABMod 
     apikey = config.api_key
     AuthClient = Authentication(apikey)
     return [uri, AuthClient]
@@ -41,7 +44,6 @@ def uri_setup():
 # In[4]:
 
 def get_match(term, searchType, tgt, AuthClient):
-    print(str(time.ctime()) + "/t Executed get_match of APISearchRequests.py") ##ABMod 
     maxCount = 20
     count = 0
     cont = True
@@ -66,7 +68,9 @@ def get_match(term, searchType, tgt, AuthClient):
 # In[5]:
 
 def parse_dat(data, filetype):
-    print(str(time.ctime()) + "/t Executed parse_dat of APISearchRequests.py") ##ABMod 
+    if config.print_status == 'Y':
+        print('Obtaining UMLS CUIs for', filetype)
+
     uri, AuthClient = uri_setup()
     
     start = time.time()
@@ -81,6 +85,9 @@ def parse_dat(data, filetype):
                 start = time.time()
                 tgt = AuthClient.gettgt()
             token = data.loc[i, ref_col]
+            if i % 500 == 0 and config.print_status == 'Y':
+                print(filetype, "line", i, '/', data.shape[0])
+            
             if token not in master:
                 jsonData = get_match(token, "exact", tgt, AuthClient)    
                 if jsonData["results"][0]["ui"] == "NONE":
@@ -90,8 +97,8 @@ def parse_dat(data, filetype):
                             jsonData = get_match(term, "exact", tgt, AuthClient)
                             if jsonData["results"][0]["ui"] != "NONE" and len(master[token]) < 3:
                                 master[token].append([jsonData["results"][0]["ui"],
-                                                                    jsonData["results"][0]["name"],
-                                                                    jsonData["results"][0]["rootSource"]])
+                                    jsonData["results"][0]["name"],
+                                    jsonData["results"][0]["rootSource"]])
             if token not in master:
                 for j, sets in enumerate(jsonData["results"]):
                     if len(sets) > 2:
