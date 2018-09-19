@@ -7,6 +7,7 @@ import csv
 import re
 import pandas as pd
 import numpy as np
+import time ##ABMod 
 from collections import defaultdict, Counter
 import config
 
@@ -19,6 +20,7 @@ loincFilePath = config.loinc_file_path
 # In[3]:
 
 def clean_terms(dataElement):
+    print(str(time.ctime()) + "/t executed clean_terms of MapLoincFields.py") ##ABMod 
     insigWords = ["IN", "FROM", "ON", "OR", "OF", "BY", "AND", "&", "", " "]
     
     data = (dataElement.replace("'", "").replace(",", " ").replace(".", " ")         .replace(":", " ").replace('\t', " ").replace("^", " ").replace("+", " ")         .replace("*", " ").replace("~", " ").replace("(", " ").replace(")", " ")         .replace("!",  " ").replace("[", " ").replace("]", " ")         .replace("_", " ").replace("|", " ").replace('"', " ")         .replace("-", " ").replace("/", " ").replace("\\", " ")         .replace("#", " ").replace("?", " ").replace("%", " ")         .replace("<", " ").replace(">", " ").replace("@", " ")         .replace("=", " ").split(" "))
@@ -36,6 +38,7 @@ def clean_terms(dataElement):
 # In[4]:
 
 def add_match(data, shortName, matchName):
+    print(str(time.ctime()) + "/t executed add_match of MapLoincFields.py") ##ABMod 
     if matchName != "":
         data[shortName][matchName] += 1
 
@@ -43,6 +46,7 @@ def add_match(data, shortName, matchName):
 # In[5]:
 
 def expand_words(data, shortWords, longWords):
+    print(str(time.ctime()) + "/t executed expand_words of MapLoincFields.py") ##ABMod 
     stringDelta = len(longWords) - len(shortWords)
     for i in range(len(shortWords)):
         match1 = ""
@@ -77,6 +81,7 @@ def expand_words(data, shortWords, longWords):
 # In[8]:
 
 def parse_loinc():
+    print(str(time.ctime()) + "/t Executed parse_loinc of MapLoincFields.py") ##ABMod 
     reader = csv.reader(open(loincFilePath, encoding='utf8'))
     index = -1
     loincs = list()

@@ -20,7 +20,7 @@ import config
 # In[3]:
 
 def data_setup():
-    print(str(time.ctime()) + " Executed the data_setup() function of APISearchRequests.py.") ##ABMod 
+    print(str(time.ctime()) + "/t Executed data_setup of APISearchRequests.py") ##ABMod 
     if os.path.exists(config.out_dir + "Cleaned_Lab_Names.csv") and os.path.exists(config.out_dir + "Cleaned_Specimen_Names.csv"):
         test_input = pd.read_csv(config.out_dir + "Cleaned_Lab_Names.csv", sep='|')
         specimen_input = pd.read_csv(config.out_dir + "Cleaned_Specimen_Names.csv", sep='|')
@@ -32,7 +32,7 @@ def data_setup():
 # In[ ]:
 
 def uri_setup():
-    print(str(time.ctime()) + " Executed the uri_setup() function of APISearchRequests.py.") ##ABMod 
+    print(str(time.ctime()) + "/t Executed URI_Setup of APISearchRequests.py") ##ABMod 
     apikey = config.api_key
     AuthClient = Authentication(apikey)
     return [uri, AuthClient]
@@ -41,7 +41,7 @@ def uri_setup():
 # In[4]:
 
 def get_match(term, searchType, tgt, AuthClient):
-    print(str(time.ctime()) + " Executed the get_match() function of APISearchRequests.py.") ##ABMod 
+    print(str(time.ctime()) + "/t Executed get_match of APISearchRequests.py") ##ABMod 
     maxCount = 20
     count = 0
     cont = True
@@ -66,7 +66,7 @@ def get_match(term, searchType, tgt, AuthClient):
 # In[5]:
 
 def parse_dat(data, filetype):
-    print(str(time.ctime()) + " Executed the parse_dat() function of APISearchRequests.py.") ##ABMod 
+    print(str(time.ctime()) + "/t Executed parse_dat of APISearchRequests.py") ##ABMod 
     uri, AuthClient = uri_setup()
     
     start = time.time()
