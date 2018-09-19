@@ -6,15 +6,15 @@
 
 ## Enter the directory where you would like the intermediate output files to be stored:
 ## Example: 'C:/Users/me/Documents/MyFiles/'
-out_dir = r"M:/LoincMappingV4/output//"
+out_dir = r"M:/LoincMappingV5/dxOutput//"
 
 ## Enter the filepath where your raw source data file is located along with :
 ## Example: ## Example: 'C:/Users/me/Documents/MyFiles/Data.txt'
-in_file = r"M:/LoincMappingV4/data/AggLabsCopy.csv"
+in_file = r"M:/LoincMappingV5/dxOutput/truncAggLabsCopy.csv"
 
 ## If your data file is delimited by character(s) other than a comma, please indicate the delimeter:
 ## Example: delimiter = '|'
-delim = '|'
+delim = '|' ##ABMod - Parr's source data file is pipe delimited, while the LOINC Core CSV is comma delimited. Possible complication?
 
 ## Throughout this data transformation pipeline, intermediate files can be written to disk both for examination and for loading in subsequent model steps to avoid having to recreate them. The following files created while cleaning source data text can be written to file:
 ## 1. Cleaned_Lab_Names.csv
@@ -39,7 +39,7 @@ write_file_umls_cuis = True
 
 ## Enter the full filepath to your local loinc.csv file installation:
 ## Example: 'C:/Users/me/Documents/MyFiles/loinc.csv'
-loinc_file_path = r"M:/LoincMappingV4/data/Loinc.csv"
+loinc_file_path = r"M:/LoincMappingV5/dxOutput/truncLoinc.csv"
 
 ## Enter the full filepath to your local R library file location (where stringdist package is installed)
 ## Example: 'C:/Program Files/R/R-3.4.1/library'
@@ -61,11 +61,12 @@ lib_loc = r"C:/Program Files/R/R-3.3.0/library//"
 ## 13. Count (of total number of tests with the same [Test Name, Specimen Type, Units, and LOINC code])
 ## 14. Site identifier
 
+
 ## Enter the name of the column in your data source that contains the TEST NAME (i.e. Creatinine):
 test_col = 'LabChemTestName'
 
 ## Enter the name of the column in your data source that contains the SPECIMEN TYPE (i.e. urine):
-spec_col = 'Topography'
+spec_col = 'Topography' ##ABMod - LOINC Terminology for specimen type is "Topography"
 
 ## Enter the name of the column in your data source that contains the UNITS:
 units = 'Units'
@@ -101,14 +102,11 @@ perc_95 = 'Perc_95'
 count = 'Count'
 
 ## Enter the name of the column in your data source that contains the SITE IDENTIFIER:
-site = 'LabChemTestSID'
+site = 'Sta3n'
 
 ## If missing data is denoted by anything other than a NULL field, please indicate special strings
 ## Example: missings = ["*MISSING", 'UNKNOWN', '-1']
-missing = ['', 'NULL', '*Missing*', '*Unknown at this time*']
-
-datatypes = {test_col:str, spec_col:str, units:str, loinc_col:str, min_col:float, max_col:float, mean_col:float, median_col:float, perc_75:float, perc_95:float, count:int, site:int} ##ABMod - datatypes specification
-
+missing = ['', 'NULL', '*Missing*', '*Unknown at this time*'] ##AB - Courtesy of Dr. Parr
 
 ## Please enter a numeric rejection threshold (example: 4.0) for eliminating high frequency tokens from source data test names.
 ## Default will not remove any tokens during source data pre-processing.
