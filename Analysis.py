@@ -187,7 +187,7 @@ def get_indices():
 def rf_hyperopt_train_test(rf_params):
     score_rf = []
     for i in range(config.n_splits):
-        clf = RandomForestClassifier(random_state=seed, n_jobs=-1, **rf_params)
+        clf = RandomForestClassifier(random_state=seed, n_jobs = config.n_jobs, **rf_params)
         X_train = X0.iloc[np.concatenate(tune_train_ind[:i] + tune_train_ind[i + 1:])].drop([config.site, config.loinc_col], axis=1)
         y_train = X_train.pop('LOINC_KEY')
         X_test = X0.iloc[np.concatenate(tune_test_ind[:i] + tune_test_ind[i + 1:])].drop([config.site, config.loinc_col], axis=1)
@@ -221,7 +221,7 @@ def rf_f(rf_params):
 def ovr_hyperopt_train_test(ovr_params):
     score_ovr = []
     for i in range(config.n_splits):
-        ovr = OneVsRestClassifier(RandomForestClassifier(random_state=seed, n_jobs=-1, **ovr_params))
+        ovr = OneVsRestClassifier(RandomForestClassifier(random_state=seed, n_jobs = config.n_jobs, **ovr_params))
         X_train = X0.iloc[np.concatenate(tune_train_ind[:i] + tune_train_ind[i + 1:])].drop([config.site, config.loinc_col], axis=1)
         y_train = X_train.pop('LOINC_KEY')
         X_test = X0.iloc[np.concatenate(tune_test_ind[:i] + tune_test_ind[i + 1:])].drop([config.site, config.loinc_col], axis=1)
@@ -286,7 +286,7 @@ def run_cv(unknowns_analysis, site_splits, rf_final_parms, ovr_final_parms):
             max_depth=rf_final_parms['max_depth'],
             min_samples_split=rf_final_parms['min_samples_split'],
             n_estimators=rf_final_parms['n_estimators'],
-            n_jobs=-1, random_state=seed)
+            n_jobs = config.n_jobs, random_state=seed)
 
         rf.fit(X_train, y_train)      
         y_pred = rf.predict(X_test)
@@ -308,7 +308,7 @@ def run_cv(unknowns_analysis, site_splits, rf_final_parms, ovr_final_parms):
             max_depth=ovr_final_parms['max_depth'],
             min_samples_split=ovr_final_parms['min_samples_split'],
             n_estimators=ovr_final_parms['n_estimators'],
-            n_jobs=-1, random_state=seed), n_jobs= -1)    
+            n_jobs = config.n_jobs, random_state=seed), n_jobs = config.n_jobs)    
 
         ovr.fit(X_train, y_train)      
         y_pred = ovr.predict(X_test)
@@ -485,7 +485,7 @@ def main():
         max_depth=rf_final_parms['max_depth'],
         min_samples_split=rf_final_parms['min_samples_split'],
         n_estimators=rf_final_parms['n_estimators'],
-        n_jobs=-1, random_state=seed)
+        n_jobs = config.n_jobs, random_state=seed)
 
     rf_final.fit(X_overall, y_overall)
     rf_preds = rf_final.predict(X_overall)
@@ -496,7 +496,7 @@ def main():
         max_depth=ovr_final_parms['max_depth'],
         min_samples_split=ovr_final_parms['min_samples_split'],
         n_estimators=ovr_final_parms['n_estimators'],
-        n_jobs=-1, random_state=seed), n_jobs= -1)
+        n_jobs = config.n_jobs, random_state=seed), n_jobs= -1)
 
     ovr_final.fit(X_overall, y_overall)
     ovr_preds = ovr_final.predict(X_overall)
